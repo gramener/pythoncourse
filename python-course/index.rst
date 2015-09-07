@@ -11,6 +11,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   working-with-files-and-folders
 
 
 Indices and tables
