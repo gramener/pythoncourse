@@ -9,7 +9,7 @@ Python provides a built-in function ``open`` to open a file, which returns a fil
 
 The second argument to open is optional, which defaults to ``'r'`` when not specified.
 
-Unix does not distinguish binary files from text files but Windows does. On Windows ``'rb'``, ``'wb'``, ``'ab'`` should be used to open a binary file in read, write and append mode respectively.
+Unix does not distinguish binary files from text files but Windows does. On Windows ``'rb'``, ``'wb'``, ``'ab'`` should be used to open a binary file in read, write and append modes respectively.
 
 Reading Files
 -------------
@@ -24,7 +24,9 @@ The ``readlines`` method returns all the lines of the file as a list.
     >>> open('three.txt').readlines()
     ['one\n', 'two\n', 'three\n']
 
-Indivual lines of a file can be read using the ``readline`` method. It returns empty string when there is nothing more to read in a file.
+Individual lines of a file can be read using the ``readline`` method. It returns empty string when there is nothing more to read in a file.
+
+::
 
     >>> f = open('three.txt')
     >>> f.readline()
@@ -36,7 +38,9 @@ Indivual lines of a file can be read using the ``readline`` method. It returns e
     >>> f.readline()
     ''
 
-**Problem** Write a program ``cat.py`` that takes a filename as command-line argument and prints all the contents of that file. ::
+**Problem:** Write a program ``cat.py`` that takes a filename as command-line argument and prints all the contents of that file.
+
+::
 
     $ python cat.py three.txt
     one
@@ -46,12 +50,14 @@ Indivual lines of a file can be read using the ``readline`` method. It returns e
 Example: Word Count
 ^^^^^^^^^^^^^^^^^^^
 
-Have you ever used the ``wc`` command, the unix program to compute number of lines, words and characters in a file? ::
+Have you ever used the ``wc`` command, the Unix program to compute number of lines, words and characters in a file?
+
+::
 
     $ wc numbers.txt
     5      10      34 numbers.txt
 
-Lets try to implment that using Python:
+Lets try to implement that using Python:
 
 .. code-block:: python
 
@@ -143,7 +149,7 @@ To writing something to a file, we first open it in write mode, write something 
     f.write("two\n")
     f.close()
 
-Everytime we open a file in write mode, the previous contents would be overwritten by the new contents.
+Every time we open a file in write mode, the previous contents will be overwritten by the new contents.
 
 .. code-block:: python
 
@@ -166,7 +172,7 @@ Lets see what is there in the file now.
 The ``with`` Statement
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Instead of explicitly closing the file after writing to it, we can also use a ``with`` statement. The ``with`` statement automatically closes a file object at the end, even if in presence of errors.
+Instead of explicitly closing the file after writing to it, we can also use a ``with`` statement. The ``with`` statement automatically closes a file object at the end, even in the case of errors.
 
 .. code-block:: python
 
@@ -238,11 +244,54 @@ The ``isfile`` and ``isdir`` functions in ``os.path`` module can be used to chec
   notes.txt
   images
 
+File Metadata
+^^^^^^^^^^^^^
+
+The ``os.stat`` functions provides information about a file.
+
+::
+
+    >>> info = os.stat("a.txt")
+    >>> info
+    posix.stat_result(st_mode=33188, st_ino=19206704, st_dev=16777217L, st_nlink=1, st_uid=501, st_gid=0, st_size=14, st_atime=1441694498, st_mtime=1441694498, st_ctime=1441694498)
+
+It contains information about the file, including the size, creation time, modified time, access time, permissions, user and group info etc.
+
+For example, here is the file size::
+
+    >>> info.st_size
+    14
+
+And the modified time::
+
+    >>> info.st_mtime
+    1441694498.0
+
+    >>> import time
+    >>> time.ctime(info.st_mtime)
+    'Tue Sep  8 12:11:38 2015'
+
+**Problem** Write a program ``largest-file.py`` to find the the largest file in the given directory.The program should accept the directory name as command-line argument and print path to the file (not just filename) that is most recently modified file.
+
+::
+
+    $ python largest-file.py somedir/
+    bigfile.txt
+
+**Problem:** Write a program ``most-recent-file.py`` to find the most recently modified file in the given directory. The program should accept the directory name as command-line argument and print path to the file (not just filename) that is most recently modified file.
+
+::
+
+    $ python most-recent-file.py logs/
+    logs/access.log
+
+    $ python most-recent-file.py /tmp
+    /tmp/a.txt
 
 Matching wildcard patterns in filenames
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you ever need to find filenames matching some pattern, the built-in module ``glob`` makes the job very easy. It uses the unix wildcard patterns for matching filenames. There are two  wildcard characters and character ranges:
+If you ever need to find filenames matching some pattern, the built-in module ``glob`` makes the job very easy. It uses the Unix wildcard patterns for matching filenames. There are two  wildcard characters and character ranges:
 
 * ``*`` - matches zero or more characters
 * ``?`` - matches zero or one character
@@ -270,7 +319,7 @@ And, if we only want the sub directories::
     >>> [f for f in glob.glob("book/*") if os.path.isdir(f)]
     ['book/images']
 
-Internally, the ``glob`` module uses another built-in module ``fnmatch`` for matching the patterns, which can be used directly if we already have paths to be matched againest.
+Internally, the ``glob`` module uses another built-in module ``fnmatch`` for matching the patterns, which can be used directly if we already have paths to be matched against.
 
     >>> import fnmatch
     >>> fnmatch.fnmatch("chapter1.txt", "chapter?.txt")
@@ -320,26 +369,6 @@ Suppose we want the total number of files in a directory tree.
     book/chapter2.txt
     book/chapter3.txt
     book/chapter4.txt
-
-Unsorted Problems
-^^^^^^^^^^^^^^^^^
-
-**Problem** Write a program ``largest-file.py`` to find the the largest file in the given directory.The program should accept the directory name as command-line argument and print path to the file (not just filename) that is most recently modified file.
-
-::
-
-    $ python largest-file.py somedir/
-    bigfile.txt
-
-**Problem:** Write a program ``most-recent-file.py`` to find the most recently modified file in the given directory. The program should accept the directory name as command-line argument and print path to the file (not just filename) that is most recently modified file.
-
-::
-
-    $ python most-recent-file.py logs/
-    logs/access.log
-
-    $ python most-recent-file.py /tmp
-    /tmp/a.txt
 
 **Problem** Write a program `find-large-files.py` to find files recursively in a directory tree that are larger than given size. The program should accept the directory and the size as command-line argument. The size can be also be specified with `K`, `M` and `G` suffix for KB, MB and GB respectively.
 
