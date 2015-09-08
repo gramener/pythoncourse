@@ -180,3 +180,178 @@ Instead of explicitly closing the file after writing to it, we can also use a ``
     $ python copyfile.py a.txt b.txt
 
 *WARNING: Don't call the file copy.py as that conflicts with a built-in module with the same name.*
+
+Working with Directories
+------------------------
+
+The ``os`` module provides several functions to work with directories.
+
+For the sake of example, lets us assume that we have a directory tree with the following files.
+
+::
+
+    book/
+    |-- chapter1.txt
+    |-- chapter2.txt
+    |-- chapter3.txt
+    |-- chapter4.txt
+    |-- notes.txt
+    `-- images
+        |-- 1.jpg
+        |-- 2.jpg
+        `-- 3.png
+
+Lets start with listing files in a directory.
+
+    >>> import os
+    >>> os.listdir("book")
+    ['chapter1.txt', 'chapter2.txt', 'chapter3.txt', 'chapter4.txt', 'notes.txt', 'images']
+
+The ``os.path.join`` function is useful to join two or more path components.
+
+    >>> os.path.join("book", "chapter1.txt")
+    'book/chapter1.txt'
+    >>> os.path.join("book", "images", "1.jpg")
+    'book/images/1.jpg'
+
+The ``os.path.join`` takes care of using the path separator of the underlying system (``/`` on Unix and ``\`` on Windows).
+
+The ``isfile`` and ``isdir`` functions in ``os.path`` module can be used to check if a given path is a file or a directory.
+
+    >>> os.path.isfile("book/chapter1.txt")
+    True
+    >>> os.path.isfile("book/images")
+    False
+    >>> os.path.isdir("book/images")
+    True
+
+
+**Problem:** Write a program ``ls.py`` that takes path to a directory as command-line argument and prints all the files in that directory. When no argument is specified, it should list the files in the current directory.
+
+::
+
+  $ python ls.py book
+  chapter1.txt
+  chapter2.txt
+  chapter3.txt
+  chapter4.txt
+  notes.txt
+  images
+
+
+Matching wildcard patterns in filenames
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you ever need to find filenames matching some pattern, the built-in module ``glob`` makes the job very easy. It uses the unix wildcard patterns for matching filenames. There are two  wildcard characters and character ranges:
+
+* ``*`` - matches zero or more characters
+* ``?`` - matches zero or one character
+* ``[a-f]`` - matches all characters from ``a`` to ``f`` (for any two characters)
+
+These look like regular expressions, but these different and quite simpler than regular expressions.
+
+Let us try some examples::
+
+    >>> import glob
+    >>> glob.glob("book/*")
+    ['book/chapter1.txt', 'book/chapter2.txt', 'book/chapter3.txt', 'book/chapter4.txt', 'book/images', 'book/notes.txt']
+    >>> glob.glob("book/*.txt")
+    ['book/chapter1.txt', 'book/chapter2.txt', 'book/chapter3.txt', 'book/chapter4.txt', 'book/notes.txt']
+    >>> glob.glob("book/chapter?.txt")
+    ['book/chapter1.txt', 'book/chapter2.txt', 'book/chapter3.txt', 'book/chapter4.txt']
+
+If we want to find only files, but not sub directories in a directory::
+
+    >>> [f for f in glob.glob("book/*") if os.path.isfile(f)]
+    ['book/chapter1.txt', 'book/chapter2.txt', 'book/chapter3.txt', 'book/chapter4.txt', 'book/notes.txt']
+
+And, if we only want the sub directories::
+
+    >>> [f for f in glob.glob("book/*") if os.path.isdir(f)]
+    ['book/images']
+
+Internally, the ``glob`` module uses another built-in module ``fnmatch`` for matching the patterns, which can be used directly if we already have paths to be matched againest.
+
+    >>> import fnmatch
+    >>> fnmatch.fnmatch("chapter1.txt", "chapter?.txt")
+    True
+    >>> fnmatch.fnmatch("notes.txt", "chapter?.txt")
+    False
+
+Traversing Directory Tree
+-------------------------
+
+The ``os.walk`` function traverses a directory recursively, and for each directory it generates a tuple containing directory path, names of all sub directories and names of all files in that directory.
+
+::
+
+    >>> for path, dirnames, filenames in os.walk("book/"):
+    ...     print path
+    ...     print dirnames
+    ...     print filenames
+    ...     print "---"
+    ...
+    book/
+    ['images']
+    ['chapter1.txt', 'chapter2.txt', 'chapter3.txt', 'chapter4.txt', 'notes.txt']
+    ---
+    book/images
+    []
+    ['1.jpg', '2.jpg', '3.png']
+    ---
+
+Suppose we want the total number of files in a directory tree.
+::
+
+    >>> sum([len(filenames) for path, dirnames, filenames in os.walk("book")])
+    8
+
+
+**Problem:** Write a program ``find-matching-files.py`` to find files recursively in a directory tree matching given wildcard pattern. The program should accept the directory and the pattern as command-line argument.
+
+::
+
+    $ python find-matching-files.py book '*.jpg'
+    book/images/1.jpg
+    book/images/2.jpg
+
+    $ python find-matching-files.py book 'chap*.txt'
+    book/chapter1.txt
+    book/chapter2.txt
+    book/chapter3.txt
+    book/chapter4.txt
+
+Unsorted Problems
+^^^^^^^^^^^^^^^^^
+
+**Problem** Write a program ``largest-file.py`` to find the the largest file in the given directory.The program should accept the directory name as command-line argument and print path to the file (not just filename) that is most recently modified file.
+
+::
+
+    $ python largest-file.py somedir/
+    bigfile.txt
+
+**Problem:** Write a program ``most-recent-file.py`` to find the most recently modified file in the given directory. The program should accept the directory name as command-line argument and print path to the file (not just filename) that is most recently modified file.
+
+::
+
+    $ python most-recent-file.py logs/
+    logs/access.log
+
+    $ python most-recent-file.py /tmp
+    /tmp/a.txt
+
+**Problem** Write a program `find-large-files.py` to find files recursively in a directory tree that are larger than given size. The program should accept the directory and the size as command-line argument. The size can be also be specified with `K`, `M` and `G` suffix for KB, MB and GB respectively.
+
+::
+
+    $ python find-large-files.py logs 100000
+    logs/access.log
+    logs/error.log
+
+    $ python find-large-files.py logs 100K
+    logs/access.log
+    logs/error.log
+
+    $ python find-large-files.py logs 2M
+    logs/access.log
