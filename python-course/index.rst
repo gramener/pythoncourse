@@ -11,8 +11,10 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   getting-started
    working-with-files-and-folders
-
+   building-command-line-applications
+   working-with-web
 
 Indices and tables
 ==================
