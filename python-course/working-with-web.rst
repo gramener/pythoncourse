@@ -297,4 +297,39 @@ Now, we got the an XML element and we need to get the current weather descriptio
 Scraping Web Pages
 ------------------
 
-TODO
+One of the popular libraries for scrapping web pages is `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/>`_. It is a third-party library and can be installed by running::
+
+    pip install beautifulsoup4
+
+Lets try a simple example.
+
+    >>> from bs4 import BeautifulSoup
+    >>> html = '<p><a href="http://python.org/">Python</a> Tutorial</p>'
+    >>> soup = BeautifulSoup(html)
+    >>> soup.get_text()
+    u'Python Tutorial'
+    >>> a = soup.find("a")
+    >>> a.get_text()
+    u'Python'
+    >>> a['href']
+    'http://python.org/'
+
+Example: Finding all links in a web page
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Lets write a program to print all links in a web page.
+
+.. literalinclude:: examples/find-links.py
+   :caption: find-links.py
+   :name: find-links.py
+
+**Problem** The `Indian Railways <http://www.indianrail.gov.in/>`_ website provides information about train schedules, seat availability etc. The schedule of a train, given train number can be found from::
+
+    http://www.indianrail.gov.in/train_Schedule.html
+
+Write a program ``train_schedule.py`` that takes a train number, requests the Indian Railways website for schedule and exports the schedule as csv. The exported CSV should have all the columns that are present in the train schedule provided by the website.
+
+::
+
+    $ python train_schedule.py 12640
+    exported schedule of 12640 - Brindavan Express to 12640-schedule.csv
